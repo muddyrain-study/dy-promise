@@ -49,7 +49,6 @@ class MyPromise {
       executor(this._resolve.bind(this), this._reject.bind(this));
     } catch (error) {
       this._changeState(REJECTED, error);
-      console.error(error);
     }
   }
 
@@ -211,87 +210,7 @@ class MyPromise {
       reject(reason);
     });
   }
-
-  /**
-   * 得到一个新的Promise
-   * 该 promise 的状态取决于 proms 的执行
-   * proms 是一个迭代器
-   * 顺序是数组顺序
-   * @param {Iterator} proms
-   */
-  static all(proms) {
-    return new MyPromise((resolve, reject) => {
-      try {
-        const results = [];
-        let count = 0; // 计数
-        let fulfilledCount = 0; // 成功的计数
-        for (const prom of proms) {
-          let i = count;
-          count++;
-          MyPromise.resolve(prom).then(data => {
-            fulfilledCount++;
-            results[i] = data;
-            if (fulfilledCount === count) {
-              // 当前是最后一个prom
-              resolve(results);
-            }
-          }, reject);
-        }
-        if (count === 0) {
-          resolve(results);
-        }
-      } catch (error) {
-        reject(error);
-        console.error(error);
-      }
-    });
-  }
-  /**
-   * 等待所以promise 有结果之后
-   * 该方法返回的结果完成
-   * @param {Iterator} proms
-   */
-  static allSettled(proms) {
-    const ps = [];
-    for (const p of proms) {
-      ps.push(
-        MyPromise.resolve(p).then(
-          value => ({
-            status: FULFILLED,
-            value,
-          }),
-          reason => ({
-            status: REJECTED,
-            reason,
-          })
-        )
-      );
-    }
-    return MyPromise.all(ps);
-  }
-  /**
-   * 返回的Promise与第一个有结果的一致
-   * @param {iterator} proms
-   */
-  static race(proms) {
-    return new MyPromise((resolve, reject) => {
-      for (const p of proms) {
-        MyPromise.resolve(p).then(resolve, reject);
-      }
-    });
-  }
 }
 
-const pro1 = new MyPromise(resolve => {
-  setTimeout(() => {
-    resolve(1);
-  }, 10);
-});
-const pro = MyPromise.race([pro1, MyPromise.resolve(2), MyPromise.reject(3), 4])
-  .then(data => {
-    console.log('成功', data);
-  })
-  .catch(e => {
-    console.log('失败', e);
-  });
+const pro = MyPromise.resolve(1);
 console.log(pro);

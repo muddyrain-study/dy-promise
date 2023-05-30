@@ -246,40 +246,6 @@ class MyPromise {
       }
     });
   }
-  /**
-   * 等待所以promise 有结果之后
-   * 该方法返回的结果完成
-   * @param {Iterator} proms
-   */
-  static allSettled(proms) {
-    const ps = [];
-    for (const p of proms) {
-      ps.push(
-        MyPromise.resolve(p).then(
-          value => ({
-            status: FULFILLED,
-            value,
-          }),
-          reason => ({
-            status: REJECTED,
-            reason,
-          })
-        )
-      );
-    }
-    return MyPromise.all(ps);
-  }
-  /**
-   * 返回的Promise与第一个有结果的一致
-   * @param {iterator} proms
-   */
-  static race(proms) {
-    return new MyPromise((resolve, reject) => {
-      for (const p of proms) {
-        MyPromise.resolve(p).then(resolve, reject);
-      }
-    });
-  }
 }
 
 const pro1 = new MyPromise(resolve => {
@@ -287,7 +253,7 @@ const pro1 = new MyPromise(resolve => {
     resolve(1);
   }, 10);
 });
-const pro = MyPromise.race([pro1, MyPromise.resolve(2), MyPromise.reject(3), 4])
+const pro = MyPromise.all(null)
   .then(data => {
     console.log('成功', data);
   })
